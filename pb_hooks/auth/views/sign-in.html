@@ -1,0 +1,22 @@
+{{define "pageTitle"}}Sign In{{end}}
+
+{{define "pageBody"}}
+  <h1>Sign In</h1>
+  <form method="POST" action="{{.pageURI}}">
+    <div>
+      <label>
+        Identity
+        <input name="identity" type="text" />
+      </label>
+    </div>
+    <div>
+      <label>
+        Password
+        <input name="password" type="password" />
+      </label>
+    </div>
+    <div>
+      <button>Sign In</button>
+    </div>
+  </form>
+{{end}}

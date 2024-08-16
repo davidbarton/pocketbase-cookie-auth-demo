@@ -1,0 +1,40 @@
+{{define "pageTitle"}}Sign Up{{end}}
+
+{{define "pageBody"}}
+  <h1>Sign Up</h1>
+  <form method="POST" action="{{.pageURI}}">
+    <div>
+      <label>
+        Name
+        <input name="name" type="text" />
+      </label>
+    </div>
+    <div>
+      <label>
+        Username
+        <input name="username" type="text" />
+      </label>
+    </div>
+    <div>
+      <label>
+        Email
+        <input name="email" type="text" />
+      </label>
+    </div>
+    <div>
+      <label>
+        Password
+        <input name="password" type="password" />
+      </label>
+    </div>
+    <div>
+      <label>
+        Password confirm
+        <input name="passwordConfirm" type="password" />
+      </label>
+    </div>
+    <div>
+      <button>Sign Up</button>
+    </div>
+  </form>
+{{end}}

@@ -1,0 +1,14 @@
+{{define "debug"}}
+  <h2>Routes</h2>
+  <ul>
+    {{range .urls}}
+      <li><a href="{{.url}}">{{.label}} ({{.url}})</a></li>
+    {{end}}
+  </ul>
+  <h2>Current user</h2>
+  <ul>
+    {{range .user}}
+      <li>{{.key}}: {{.val}}</li>
+    {{end}}
+  </ul>
+{{end}}
