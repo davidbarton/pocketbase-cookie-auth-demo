@@ -18,8 +18,8 @@ jobs:
         with:
           security: strict
           protocol: ftps
-          server: ${{ secrets.ftp_server }}
-          port: ${{ secrets.ftp_port }}
-          username: ${{ secrets.ftp_username }}
-          password: ${{ secrets.ftp_password }}
-          server-dir: pocketbase-cookie-auth-demo/
+          server-dir: ${{ vars.FTP_SERVER_DIR }}
+          server: ${{ vars.FTP_SERVER }}
+          port: ${{ vars.FTP_PORT }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
