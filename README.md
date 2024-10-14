@@ -1,5 +1,7 @@
 # pocketbase-cookie-auth-demo
 
+[![Deploy website](https://github.com/davidbarton/pocketbase-cookie-auth-demo/actions/workflows/main.yml/badge.svg)](https://github.com/davidbarton/pocketbase-cookie-auth-demo/actions/workflows/main.yml)
+
 > Disclaimer: You should use the PocketBase API methods with their powerful built-in authorization if you can. This demo exists for those edge cases where API methods are not an option (disabled JS).
 
 The goal of this demo is to showcase a naive implementation of cookie based authentication flow for PocketBase [https://pocketbase.io](https://pocketbase.io).
