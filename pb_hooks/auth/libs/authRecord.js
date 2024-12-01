@@ -1,39 +1,66 @@
 /// <reference path="../../../pb_data/types.d.ts" />
 
-const { getAuthTokenSecret } = require(`${__hooks}/auth/libs/authSettings.js`);
-const { getAuthCollection } = require(`${__hooks}/auth/libs/authCollection.js`);
+const AUTH_COOKIE_NAME = "pb_auth";
+const AUTH_TOKEN_TYPE = "auth";
+const USERS_AUTH_COLLECTION_NAME = "users";
 
-function upsertAuthRecord(ctx) {
-  const authCollection = getAuthCollection();
-  const authRecord = new Record(authCollection);
-  const form = new RecordUpsertForm($app, authRecord);
-  form.loadData($apis.requestInfo(ctx).data);
-  form.submit();
-  return authRecord;
+function isLocalhostEnv() {
+  return $os.getenv("PB_IS_LOCALHOST") === "true";
 }
 
-function getAuthRecordByPassword(ctx) {
-  const authCollection = getAuthCollection();
-  const form = new RecordPasswordLoginForm($app, authCollection);
-  ctx.bind(form);
-  const authRecord = form.submit();
-  return authRecord;
+function getCookieDomain() {
+  const url = $app.settings().meta.appURL;
+  const domain = url.replace(/(^\w+:|^)\/\//, "");
+  return domain;
 }
 
-function getAuthRecordByToken(authToken) {
-  const secret = getAuthTokenSecret();
-  const authRecord = $app.dao().findAuthRecordByToken(authToken, secret);
-  return authRecord;
+function setAuthCookie(event, authToken, duration) {
+  const localhostOptions = isLocalhostEnv()
+    ? { domain: undefined, secure: false }
+    : {};
+  const authCookie = new Cookie({
+    name: AUTH_COOKIE_NAME,
+    value: authToken ?? "",
+    maxAge: duration ?? -1,
+    expires: duration ? undefined : "Thu, 01 Jan 1970 00:00:00 GMT",
+    domain: getCookieDomain(),
+    path: "/",
+    httpOnly: true,
+    sameSite: "Strict",
+    secure: true,
+    ...localhostOptions,
+  });
+  event.setCookie(authCookie);
 }
 
-function generateAuthToken(authRecord) {
-  const authToken = $tokens.recordAuthToken($app, authRecord);
-  return authToken;
+function refreshAuthState(event, authRecord) {
+  try {
+    const { duration } = authRecord.collection().authToken;
+    const authToken = authRecord.newAuthToken();
+    setAuthCookie(event, authToken, duration);
+    event.auth = authRecord;
+  } catch (err) {
+    $app.logger().error("Failed to refresh auth state", err);
+  }
+}
+
+function getAuthRecordFromCookie(event) {
+  try {
+    const authCookie = event.request.cookie(AUTH_COOKIE_NAME);
+    const authToken = authCookie?.value;
+    if (authToken) {
+      const authRecord = $app.findAuthRecordByToken(authToken, AUTH_TOKEN_TYPE);
+      return authRecord;
+    }
+  } catch (err) {
+    $app.logger().debug("Failed to retrieve auth record from cookie", err);
+  }
+  return null;
 }
 
 module.exports = {
-  upsertAuthRecord,
-  getAuthRecordByPassword,
-  getAuthRecordByToken,
-  generateAuthToken,
+  USERS_AUTH_COLLECTION_NAME,
+  setAuthCookie,
+  refreshAuthState,
+  getAuthRecordFromCookie,
 };

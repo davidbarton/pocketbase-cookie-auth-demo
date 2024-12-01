@@ -2,8 +2,8 @@
 
 require(`${__hooks}/auth/routes.js`);
 
-routerAdd("GET", "/", (ctx) => {
+routerAdd("GET", "/", (event) => {
   const { renderPage } = require(`${__hooks}/auth/libs/renderPage.js`);
-  const html = renderPage(ctx, []);
-  return ctx.html(200, html);
+  const html = renderPage(event, []);
+  return event.html(200, html);
 });

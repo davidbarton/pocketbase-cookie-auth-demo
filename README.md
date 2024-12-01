@@ -6,9 +6,9 @@
 
 The goal of this demo is to showcase a naive implementation of cookie based authentication flow for PocketBase [https://pocketbase.io](https://pocketbase.io).
 
-## Demo
+## Live demo
 
-You can try it now at [https://pocketbase-cookie-auth-demo.pockethost.io](https://pocketbase-cookie-auth-demo.pockethost.io).
+You can try it now live at [https://pocketbase-cookie-auth-demo.pockethost.io](https://pocketbase-cookie-auth-demo.pockethost.io).
 
 ## How to run
 

@@ -1,35 +1,52 @@
 /// <reference path="../../pb_data/types.d.ts" />
 
-function requireAuthenticatedMiddleware(next) {
-  return (ctx) => {
+function refreshAuthMiddleware() {
+  return (event) => {
     const {
-      hasAuthState,
       refreshAuthState,
-      isWhitelistedRoute,
-    } = require(`${__hooks}/auth/libs/authState.js`);
-    if (hasAuthState(ctx)) {
-      refreshAuthState(ctx);
-      return next(ctx);
+      getAuthRecordFromCookie,
+    } = require(`${__hooks}/auth/libs/authRecord.js`);
+    const authRecord = event.auth ?? getAuthRecordFromCookie(event);
+    if (authRecord) {
+      refreshAuthState(event, authRecord);
     }
-    if (isWhitelistedRoute(ctx)) {
-      return next(ctx);
-    }
-    const callbackURI = encodeURIComponent(ctx.request().requestURI);
-    return ctx.redirect(302, `/auth/sign-in?redirect=${callbackURI}`);
+    return event.next();
   };
 }
 
-function redirectAuthenticatedMiddleware(next) {
-  return (ctx) => {
-    const { hasAuthState } = require(`${__hooks}/auth/libs/authState.js`);
-    if (!hasAuthState(ctx)) {
-      return next(ctx);
+function requireAuthMiddleware() {
+  return (event) => {
+    const {
+      WHITELISTED_ROUTES,
+      isRouteMatch,
+      getGuestRedirectURI,
+    } = require(`${__hooks}/auth/libs/routing.js`);
+    if (
+      !!event.auth ||
+      isRouteMatch(event.request.url.path, WHITELISTED_ROUTES)
+    ) {
+      return event.next();
     }
-    return ctx.redirect(302, ctx.queryParamDefault("redirect", "/"));
+    return event.redirect(302, getGuestRedirectURI(event));
+  };
+}
+
+function requireGuestMiddleware() {
+  return (event) => {
+    const {
+      GUEST_ROUTES,
+      isRouteMatch,
+      getAuthRedirectURI,
+    } = require(`${__hooks}/auth/libs/routing.js`);
+    if (!!event.auth && isRouteMatch(event.request.url.path, GUEST_ROUTES)) {
+      return event.redirect(302, getAuthRedirectURI(event));
+    }
+    return event.next();
   };
 }
 
 module.exports = {
-  requireAuthenticatedMiddleware,
-  redirectAuthenticatedMiddleware,
+  refreshAuthMiddleware,
+  requireAuthMiddleware,
+  requireGuestMiddleware,
 };

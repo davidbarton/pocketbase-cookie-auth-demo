@@ -1,9 +1,6 @@
 /// <reference path="../../../pb_data/types.d.ts" />
 
-const { getAuthState } = require(`${__hooks}/auth/libs/authState.js`);
-
-function getDebugValues(ctx) {
-  const authRecord = getAuthState(ctx);
+function getDebugValues(authRecord) {
   const urls = [
     { label: "Home", url: "/" },
     { label: "Sign Up", url: "/auth/sign-up" },
@@ -12,27 +9,27 @@ function getDebugValues(ctx) {
   ];
   const user = [
     "id",
-    "created",
-    "updated",
-    "username",
     "email",
     "emailVisibility",
     "verified",
     "name",
     "avatar",
-  ].map((key) => ({ key, val: authRecord ? authRecord.get(key) : "" }));
+    "created",
+    "updated",
+  ].map((key) => ({ key, val: authRecord?.get(key) ?? "" }));
   return { urls, user };
 }
 
-function renderPage(ctx, templatePath) {
+function renderPage(event, templatePaths, templateValues) {
   const filePaths = [
     `${__hooks}/auth/views/base.html`,
     `${__hooks}/auth/views/debug.html`,
-    ...templatePath,
+    ...templatePaths,
   ];
   const values = {
-    ...getDebugValues(ctx),
-    pageURI: ctx.request().requestURI,
+    ...getDebugValues(event.auth),
+    ...templateValues,
+    pageURI: event.request.requestURI,
   };
   return $template.loadFiles(...filePaths).render(values);
 }
